@@ -75,17 +75,64 @@ def algorithm(is_sarsa=False):
         rewards_per_episode.append(rewards)
     
     return actions_of_last_episode, actions_per_episode, rewards_per_episode
+
+def plot(q_steps, q_actions, q_rewards, sarsa_steps, sarsa_actions, sarsa_rewards):
+    fig1 = plt.figure()
+    previous_x = 0
+    previous_y = 0
+    for position in q_steps:
+        x, y = position[1], position[0]
+        plt.arrow(previous_x, previous_y, x - previous_x, y - previous_y, head_width = 0.1, head_length = 0.2, color = 'red')
+        plt.plot(x, y, 'ro', markersize=1)
+        previous_x = x
+        previous_y = y
+
+    previous_x = 0
+    previous_y = 0
+    for position in sarsa_steps:
+        x, y = position[1], position[0]
+        plt.arrow(previous_x, previous_y, x - previous_x, y - previous_y, head_width = 0.1, head_length = 0.2, color = 'blue')
+        plt.plot(x, y, 'bo', markersize=1)
+        previous_x = x
+        previous_y = y
+
+    plt.plot(0, 0, 'mo', markersize=15)
+    plt.plot(11, 0, 'go', markersize=15)
+    axes = plt.gca()
+    axes.set_xticks(range(0, 12))
+    axes.set_yticks(range(0, 4))
+    axes.set_title('Paths of Algoritms')
+    red_patch = patches.Patch(color = 'red', label = 'Q Learning')
+    blue_patch = patches.Patch(color = 'blue', label = 'Sarsa Learning')
+    plt.legend(handles=[red_patch, blue_patch])
+    plt.grid()
+    plt.savefig('paths_of_algoritms.png')
+
+    labels = ['Q learning','Sarsa Learning']
+
+    fig2 = plt.figure(figsize=(10, 6))
+    smoothing = 100
+    rewards_smoothed = pd.Series(q_rewards).rolling(smoothing, min_periods=smoothing).mean()
+    plt.plot(rewards_smoothed, 'r')
+    rewards_smoothed = pd.Series(sarsa_rewards).rolling(smoothing, min_periods=smoothing).mean()
+    plt.plot(rewards_smoothed, 'b')
+    plt.xlabel("Number of Episode")
+    plt.ylabel("Reward Per Episode")
+    plt.title("Reward Per Episode Over Time (Smoothed)")
+    plt.legend(labels)
+    plt.savefig('episode_reward.png')
+
     
 
 
 q_steps, q_actions, q_rewards = algorithm()
-print "Q-Learning Steps"
+print("Q-Learning Steps")
 for step in q_steps:
-    print step
+    print(step)
 
 sarsa_steps, sarsa_actions, sarsa_rewards = algorithm(is_sarsa = True)
-print "Sarsa-Learning Steps"
+print("Sarsa-Learning Steps")
 for step in sarsa_steps:
-    print step
+    print(step)
 
 plot(q_steps, q_actions, q_rewards, sarsa_steps, sarsa_actions, sarsa_rewards)
